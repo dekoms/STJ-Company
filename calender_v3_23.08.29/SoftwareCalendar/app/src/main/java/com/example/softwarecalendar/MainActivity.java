@@ -189,39 +189,6 @@ public class MainActivity extends AppCompatActivity {
         });
 
 
-    /*
-        title = findViewById(R.id.title);
-        title.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                list.clear();
-
-                Response.Listener<String> responseListener = new Response.Listener<String>() {
-                    @Override
-                    public void onResponse(String response) {
-                        try {
-                            JSONObject jsonObject = new JSONObject(response);
-                            boolean success = jsonObject.getBoolean("success");
-                            if(success){
-                                Toast.makeText(MainActivity.this, "데이터베이스 정보 받기 성공", Toast.LENGTH_LONG).show();
-                            } else {
-                                Toast.makeText(MainActivity.this, "데이터베이스 정보 받기 실패", Toast.LENGTH_LONG).show();
-                            }
-                        } catch (JSONException e){
-                            e.printStackTrace();
-                        }
-                    }
-                };
-
-                TodoRequest todoRequest = new TodoRequest(list.size(), "", "8시", "할 일", "2023-08-22", responseListener);
-                RequestQueue queue = Volley.newRequestQueue(MainActivity.this);
-                queue.add(todoRequest);
-
-            }
-        });
-
-     */
-
 
     }
 }
