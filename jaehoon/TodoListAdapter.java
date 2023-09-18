@@ -1,4 +1,4 @@
-package com.example.recalendar;
+package com.example.customcalendar;
 
 import android.content.Context;
 import android.view.LayoutInflater;

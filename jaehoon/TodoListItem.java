@@ -1,4 +1,4 @@
-package com.example.recalendar;
+package com.example.customcalendar;
 
 public class TodoListItem {
     int todoID;
