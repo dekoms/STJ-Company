@@ -1,4 +1,4 @@
-package com.example.customcalendar;
+package com.example.petme;
 
 import android.graphics.Color;
 import android.view.LayoutInflater;
@@ -91,8 +91,9 @@ public class CalendarAdapter extends RecyclerView.Adapter<CalendarAdapter.Calend
             @Override
             public void onClick(View view) {
                 long time = day.getTime();
-
                 Toast.makeText(holder.itemView.getContext(), String.valueOf((int)time), Toast.LENGTH_SHORT).show();
+
+
             }
         });
     }
@@ -110,9 +111,9 @@ public class CalendarAdapter extends RecyclerView.Adapter<CalendarAdapter.Calend
         public CalendarViewHolder(@NonNull View itemView) {
             super(itemView);
 
-            day = itemView.findViewById(R.id.day);
+            this.day = itemView.findViewById(R.id.day);
+            this.parentView = itemView.findViewById(R.id.parentView);
 
-            parentView = itemView.findViewById(R.id.parentView);
         }
     }
 }
