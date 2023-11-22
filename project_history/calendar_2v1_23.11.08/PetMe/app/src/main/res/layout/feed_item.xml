@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/feedLayout"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:clickable="true"
+    android:onClick="onFeedItemClick"
+    android:focusable="true">
+
+    <TextView
+        android:id="@+id/TextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="18sp"
+        android:textStyle="bold" />
+
+    <!-- 이미지 또는 동영상을 표시할 View (ImageView, VideoView 등) -->
+    <ImageView
+        android:id="@+id/mediaView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:adjustViewBounds="true"
+        android:maxHeight="300dp"
+        android:scaleType="centerCrop" />
+
+
+
+    <!-- 좋아요, 댓글 등의 버튼 추가 -->
+
+</LinearLayout>
