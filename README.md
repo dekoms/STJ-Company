@@ -1,5 +1,5 @@
 # STJ-Company
 
-2023-08-14
-http://stjcompany.dothome.co.kr/myadmin/
-ID: stjcompany, PW: stj0811!!
+./ 위치에 unityLibrary 추가
+
+./app 위치에 google-service.json추가
