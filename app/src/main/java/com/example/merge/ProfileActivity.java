@@ -82,14 +82,16 @@ public class ProfileActivity extends AppCompatActivity {
         // 프로필 사진 클릭 시 갤러리 열기(프로필 사진 변경)
         imageView = findViewById(R.id.account_iv_profile);
 
-        databaseReference = FirebaseDatabase.getInstance().getReference("profile")
+        databaseReference = FirebaseDatabase.getInstance().getReference("PetMe")
                 .child("profileimage");
 
         databaseReference.child(uid).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 String url = snapshot.getValue(String.class);
-                Glide.with(imageView).load(url).circleCrop().into(imageView);
+                if (url != null && !url.isEmpty()) {
+                    Glide.with(imageView).load(url).circleCrop().into(imageView);
+                }
             }
 
             @Override
@@ -118,7 +120,7 @@ public class ProfileActivity extends AppCompatActivity {
         name.setText(user.getEmail());
 
 
-        databaseReference = FirebaseDatabase.getInstance().getReference("profile")
+        databaseReference = FirebaseDatabase.getInstance().getReference("PetMe")
                 .child("pet").child(uid);
 
         // 리사이클러뷰 설정
@@ -171,7 +173,7 @@ public class ProfileActivity extends AppCompatActivity {
     private void uploadprofileimage(Uri profileuri){
 
         String uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
-        databaseReference = FirebaseDatabase.getInstance().getReference("profile")
+        databaseReference = FirebaseDatabase.getInstance().getReference("PetMe")
                 .child("profileimage").child(uid);
 
         StorageReference imageReference = mStorageReference.child("images/" + uid +"/"+ "profileimage" + ".jpg");
@@ -239,7 +241,7 @@ public class ProfileActivity extends AppCompatActivity {
 
 
                 String uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
-                databaseReference = FirebaseDatabase.getInstance().getReference("profile")
+                databaseReference = FirebaseDatabase.getInstance().getReference("PetMe")
                         .child("pet").child(uid);
 
                 // 이미지를 Firebase Storage에 업로드하고 다운로드 URL을 얻어오는 코드 추가
@@ -304,4 +306,3 @@ public class ProfileActivity extends AppCompatActivity {
 
 
 }
-

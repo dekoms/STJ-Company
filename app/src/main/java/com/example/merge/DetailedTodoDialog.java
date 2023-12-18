@@ -1,7 +1,7 @@
 package com.example.merge;
 
-import static com.example.merge.CalendarUtil.*;
-import static com.example.merge.CalendarFragment.*;
+import static com.example.merge.CalendarFragment.clickedDate;
+import static com.example.merge.CalendarFragment.currentUser;
 
 import android.app.AlertDialog;
 import android.graphics.drawable.ColorDrawable;
@@ -13,18 +13,17 @@ import android.widget.Switch;
 import android.widget.TimePicker;
 import android.widget.Toast;
 
-import com.google.firebase.database.*;
-import com.google.firebase.auth.*;
+import com.google.firebase.database.DatabaseReference;
 
 import java.util.ArrayList;
 
 public class DetailedTodoDialog extends AlertDialog {
 
-    LayoutInflater inflater;
-    ArrayList<TodoListItem> todoList;
-    TodoListAdapter todoListAdapter;
-    DatabaseReference databaseReference;
-    int position;
+    private LayoutInflater inflater;
+    private ArrayList<TodoListItem> todoList;
+    private TodoListAdapter todoListAdapter;
+    private DatabaseReference databaseReference;
+    private int position;
 
     public DetailedTodoDialog(LayoutInflater inflater, ArrayList<TodoListItem> todoList, TodoListAdapter todoListAdapter, DatabaseReference databaseReference) {
         super(inflater.getContext());

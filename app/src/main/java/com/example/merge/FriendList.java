@@ -70,10 +70,9 @@ public class FriendList extends Fragment{
             @Override
             public void onClick(View view) {
                 int selectPosition = adapter.getSelectedPosition();
-                String name = adapter.getSelectedString(selectPosition);
 
                 if(selectPosition != RecyclerView.NO_POSITION){
-
+                    String name = adapter.getSelectedString(selectPosition);
                     mDatabaseReference.child("UserAccount").addListenerForSingleValueEvent(new ValueEventListener() {
                         @Override
                         public void onDataChange(@NonNull DataSnapshot snapshot) {

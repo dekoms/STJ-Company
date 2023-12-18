@@ -14,8 +14,8 @@ import java.util.ArrayList;
 
 public class TodoListAdapter extends RecyclerView.Adapter<TodoListAdapter.TodoListViewHolder> {
 
-    ArrayList<TodoListItem> todoList;
-    DatabaseReference databaseReference;
+    private ArrayList<TodoListItem> todoList;
+    private DatabaseReference databaseReference;
 
     public TodoListAdapter(ArrayList<TodoListItem> todoList, DatabaseReference databaseReference) {
         this.todoList = todoList;
@@ -86,9 +86,9 @@ public class TodoListAdapter extends RecyclerView.Adapter<TodoListAdapter.TodoLi
 
 
     class TodoListViewHolder extends RecyclerView.ViewHolder{
-        TextView tv_time_summary;
-        TextView tv_title;
-        TextView tv_time;
+        private TextView tv_time_summary;
+        private TextView tv_title;
+        private TextView tv_time;
 
         public TodoListViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -98,9 +98,9 @@ public class TodoListAdapter extends RecyclerView.Adapter<TodoListAdapter.TodoLi
         }
 
         public void setItem(TodoListItem item){
-            tv_time_summary.setText(item.allDay ? "   🕛   " : item.startTime);
-            tv_title.setText(item.title);
-            tv_time.setText(item.allDay ? "하루 종일" : (item.startTime + " - " + item.endTime));
+            tv_time_summary.setText(item.isAllDay() ? "   🕛   " : item.getStartTime());
+            tv_title.setText(item.getTitle());
+            tv_time.setText(item.isAllDay() ? "하루 종일" : (item.getStartTime() + " - " + item.getEndTime()));
         }
 
         public void updateDetailedTodo(int position){

@@ -2,14 +2,12 @@ package com.example.merge;
 
 public class TodoListItem {
 
-    //userID가 과연 필요한가???
-    String userID;
-    boolean isDone = false;
-    String title;
-    boolean allDay;
-    String startTime;
-    String endTime;
-    String memo;
+    private boolean isDone = false;
+    private String title;
+    private boolean allDay;
+    private String startTime;
+    private String endTime;
+    private String memo;
 
     public TodoListItem(){
     }
@@ -34,14 +32,6 @@ public class TodoListItem {
         this.startTime = startTime;
         this.endTime = endTime;
         this.memo = memo;
-    }
-
-    public String getUserID() {
-        return userID;
-    }
-
-    public void setUserID(String userID) {
-        this.userID = userID;
     }
 
     public boolean isDone() {

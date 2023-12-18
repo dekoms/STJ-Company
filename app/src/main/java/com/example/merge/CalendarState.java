@@ -1,54 +1,48 @@
 package com.example.merge;
 
-import static com.example.merge.CalendarUtil.*;
-import static com.example.merge.CalendarFragment.*;
-
-import android.util.Log;
-import android.view.LayoutInflater;
-
-import androidx.annotation.NonNull;
-import com.google.firebase.database.*;
-import com.google.firebase.auth.*;
-
-import java.util.HashSet;
+import android.graphics.Color;
+import android.graphics.drawable.ShapeDrawable;
+import android.graphics.drawable.shapes.OvalShape;
+import android.util.TypedValue;
+import android.view.ViewGroup;
+import android.widget.LinearLayout;
+import android.widget.TextView;
 
 public class CalendarState {
-    DatabaseReference databaseReference;
-    String displayDate;
-    HashSet<String> stringDateList;
-    LayoutInflater inflater;
 
-    public CalendarState(LayoutInflater inflater, DatabaseReference databaseReference, String displayDate, HashSet<String> stringDateList) {
-        this.inflater = inflater;
-        this.databaseReference = databaseReference;
-        this.displayDate = displayDate;
-        this.stringDateList = stringDateList;
+    private LinearLayout cellViewGroup;
+
+    public CalendarState(LinearLayout cellViewGroup) {
+        this.cellViewGroup = cellViewGroup;
     }
 
-    public void createState(){
+    public void create() {
+        TextView dynamicTextView = new TextView(cellViewGroup.getContext());
 
+        ShapeDrawable shapeDrawable = new ShapeDrawable(new OvalShape());
+        shapeDrawable.getPaint().setColor(Color.GREEN);
+        dynamicTextView.setBackground(shapeDrawable);
 
-        try {
-            databaseReference.child("TodoCell").child(currentUser).addListenerForSingleValueEvent(new ValueEventListener() {
-                @Override
-                public void onDataChange(@NonNull DataSnapshot snapshot) {
-                    for(DataSnapshot children: snapshot.getChildren()){
-                        stringDateList.add(children.getKey());
+        ViewGroup.MarginLayoutParams layoutParams = new ViewGroup.MarginLayoutParams(
+                ViewGroup.LayoutParams.WRAP_CONTENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT
+        );
+        int marginTop = (int) TypedValue.applyDimension(
+                TypedValue.COMPLEX_UNIT_DIP,
+                20,
+                cellViewGroup.getResources().getDisplayMetrics()
+        );
+        int marginLeft = (int) TypedValue.applyDimension(
+                TypedValue.COMPLEX_UNIT_DIP,
+                11,
+                cellViewGroup.getResources().getDisplayMetrics()
+        );
+        layoutParams.topMargin = marginTop;
+        layoutParams.leftMargin = marginLeft;
+        dynamicTextView.setLayoutParams(layoutParams);
 
-                    }
-                }
+        dynamicTextView.setText("     ");
 
-                @Override
-                public void onCancelled(@NonNull DatabaseError error) {
-                    //디비를 가져오는 중 에러 발생 시
-                    Log.e("FirebaseTodoCell", String.valueOf(error.toException()));
-                }
-            });
-        } catch (NullPointerException e){
-            Log.e("HashSet", "HashSet 크기: "+String.valueOf(stringDateList.size()));
-        }
-
-        for(String i:stringDateList)
-            Log.e("safc", i);
+        cellViewGroup.addView(dynamicTextView);
     }
 }

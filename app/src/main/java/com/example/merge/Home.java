@@ -2,27 +2,18 @@ package com.example.merge;
 
 import android.app.Activity;
 import android.content.*;
-import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.*;
 import android.widget.*;
 
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.AlertDialog;
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentManager;
-import androidx.fragment.app.FragmentPagerAdapter;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-import androidx.viewpager.widget.ViewPager;
-
-import com.google.android.material.tabs.TabLayout;
 
 import com.google.firebase.database.*;
 import com.google.firebase.auth.*;
-import com.google.firebase.storage.*;
 
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -37,8 +28,8 @@ public class Home extends Fragment{
     SharedPreferences.Editor editor;
     private Button logout, setting;
     private RecyclerView recyclerView;
-    private ArrayList<todoItem> list = new ArrayList<>();
-    todoAdapter adapter;
+    private ArrayList<TodoItem> list = new ArrayList<>();
+    TodoAdapter adapter;
     public Home() {
 
     }
@@ -82,6 +73,7 @@ public class Home extends Fragment{
         databaseReference.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
+                list.clear();
                 for(DataSnapshot dataSnapshot : snapshot.getChildren()){
                     if(Objects.equals(dataSnapshot.getKey(), name)){
                         DatabaseReference ref1 = databaseReference.child(name);
@@ -89,7 +81,7 @@ public class Home extends Fragment{
                             @Override
                             public void onDataChange(@NonNull DataSnapshot snapshot) {
                                 for(DataSnapshot dataSnapshot1 : snapshot.getChildren()){
-                                    list.add(new todoItem(dataSnapshot1.child("title").getValue(String.class),
+                                    list.add(new TodoItem(dataSnapshot1.child("title").getValue(String.class),
                                             dataSnapshot1.child("startTime").getValue(String.class),
                                             dataSnapshot1.child("endTime").getValue(String.class),
                                             dataSnapshot1.child("memo").getValue(String.class)));
@@ -112,7 +104,7 @@ public class Home extends Fragment{
             }
         });
         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
-        adapter = new todoAdapter(getActivity(), list);
+        adapter = new TodoAdapter(getActivity(), list);
         recyclerView.setAdapter(adapter);
 
         setting = rootView.findViewById(R.id.profile_btn);
@@ -129,7 +121,7 @@ public class Home extends Fragment{
         return rootView;
     }
 
-    public String getTime(){
+    public static String getTime(){
         Date date = new Date();
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.KOREAN);
         return simpleDateFormat.format(date);

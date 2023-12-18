@@ -21,7 +21,12 @@ import com.google.android.material.tabs.TabLayout;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
+import com.unity3d.player.UnityPlayerActivity;
+
+
 public class PetOne extends Fragment{
+
+    Button unityButton;
 
     public PetOne(){
 
@@ -30,6 +35,16 @@ public class PetOne extends Fragment{
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.petone, container, false);
+
+        unityButton = rootView.findViewById(R.id.unityButton);
+
+        unityButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(getActivity(), UnityPlayerActivity.class);
+                startActivity(intent);
+            }
+        });
 
         return rootView;
     }

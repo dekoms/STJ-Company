@@ -1,8 +1,9 @@
 package com.example.merge;
 
-import static com.example.merge.CalendarUtil.*;
+import static com.example.merge.CalendarUtil.currentDateInfo;
+import static com.example.merge.CalendarUtil.yearMonthDayFromDate;
 
-import android.os.Build;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -12,38 +13,49 @@ import android.widget.Button;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.RequiresApi;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.google.firebase.database.*;
-import com.google.firebase.auth.*;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.HashSet;
 
 public class CalendarFragment extends Fragment {
 
-    TextView yearMonth;
-    RecyclerView recyclerviewCalendar;
-    static String clickedDate;  //format: yyyy-mm-dd
-    static String currentDate;
+    private TextView yearMonth;
+    private RecyclerView recyclerviewCalendar;
+    private Button preBtn;
+    private Button nextBtn;
+    private HashSet<String> stringDateList;
+    private CalendarAdapter calendarAdapter;
+    public static String clickedDate;  //format: yyyy-mm-dd
+    public static String currentDate;
 
-    ArrayList<TodoListItem> todoList;
-    TodoListAdapter todoListAdapter;
+    private ArrayList<TodoListItem> todoList;
+    private TodoListAdapter todoListAdapter;
 
-    FirebaseDatabase database;
-    DatabaseReference databaseReference;
+    private FirebaseDatabase database;
+    private DatabaseReference databaseReference;
 
-    FirebaseAuth firebaseAuth;
-    FirebaseUser firebaseUser;
-    static String currentUser;
+    private FirebaseAuth firebaseAuth;
+    private FirebaseUser firebaseUser;
+    public static String currentUser;
+
 
     public CalendarFragment() {
 
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.O)
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.activity_calendar_fragment, container, false);
@@ -55,26 +67,10 @@ public class CalendarFragment extends Fragment {
         firebaseAuth = FirebaseAuth.getInstance();  //파이어베이스 인증 초기화
         firebaseUser = firebaseAuth.getCurrentUser();   //현재 인증처리된 객체 가져오기
 
-        //현재 사용자 닉네임 가져오기
-        String userKey = firebaseUser.getUid();
-        databaseReference.child("UserAccount").child(userKey).addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                for(DataSnapshot userDatas : snapshot.getChildren()){
-                    UserAccount user = snapshot.getValue(UserAccount.class);
-                    currentUser = user.getName();
-                }
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-                Log.e("FirebaseCurrentUser", String.valueOf(error.toException()));
-            }
-        });
 
         yearMonth = (TextView) rootView.findViewById(R.id.year_month);
-        Button pre_btn = (Button) rootView.findViewById(R.id.pre_btn);
-        Button next_btn = (Button) rootView.findViewById(R.id.next_btn);
+        preBtn = (Button) rootView.findViewById(R.id.pre_btn);
+        nextBtn = (Button) rootView.findViewById(R.id.next_btn);
         recyclerviewCalendar = (RecyclerView) rootView.findViewById(R.id.recyclerView_calendar);
 
         //현재의 날짜 및 시간 정보 저장
@@ -86,23 +82,71 @@ public class CalendarFragment extends Fragment {
         int currentDay = currentDateInfo.get(Calendar.DAY_OF_MONTH);
         currentDate = clickedDate = yearMonthDayFromDate(currentYear, currentMonth, currentDay);
 
+
         //리사이클러뷰에서 사용할 어댑터 설정
         todoList = new ArrayList<>();
         todoListAdapter = new TodoListAdapter(todoList, databaseReference);
 
 
+        AuthAsync authAsync = new AuthAsync();
+        authAsync.execute();
 
-        HashSet<String> stringDateList = new HashSet<>(42);
-        try {
-            databaseReference.child("TodoCell").child(currentUser).addListenerForSingleValueEvent(new ValueEventListener() {
+
+        return rootView;
+    }
+
+    class AuthAsync extends AsyncTask<Void, Void, Void>{
+
+        @Override
+        protected Void doInBackground(Void... voids) {
+
+            //현재 사용자 닉네임 가져오기
+            String userKey = firebaseUser.getUid();
+            databaseReference.child("UserAccount").child(userKey).addListenerForSingleValueEvent(new ValueEventListener() {
                 @Override
                 public void onDataChange(@NonNull DataSnapshot snapshot) {
+                    for(DataSnapshot userDatas : snapshot.getChildren()){
+                        UserAccount user = snapshot.getValue(UserAccount.class);
+                        currentUser = user.getName();
+                    }
+
+                    CalendarAsync calendarAsync = new CalendarAsync();
+                    calendarAsync.execute();
+
+                }
+
+                @Override
+                public void onCancelled(@NonNull DatabaseError error) {
+                    Log.e("FirebaseCurrentUser", String.valueOf(error.toException()));
+                }
+            });
+
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void unused) {
+
+        }
+    }
+
+    class CalendarAsync extends AsyncTask<Void, Void, Void>{
+
+        @Override
+        protected Void doInBackground(Void... voids) {
+
+            stringDateList = new HashSet<>(42);
+
+            databaseReference.child("TodoCell").child(currentUser).addValueEventListener(new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot snapshot) {
+                    stringDateList.clear();
                     for(DataSnapshot children: snapshot.getChildren()){
                         stringDateList.add(children.getKey());
                     }
-                    Log.e("HashSet1", "HashSet 크기: " + stringDateList.size());
-                    for(String i:stringDateList)
-                        Log.e("sequence", ">> "+i);
+                    //어댑터 새로고침, 데이터 변경 반영
+                    calendarAdapter.notifyDataSetChanged();
+
                 }
 
                 @Override
@@ -111,35 +155,31 @@ public class CalendarFragment extends Fragment {
                     Log.e("FirebaseTodoCell", String.valueOf(error.toException()));
                 }
             });
-        } catch (NullPointerException e){
-            Log.e("HashSet2", "HashSet 크기: " + stringDateList.size());
-            for(String i:stringDateList)
-                Log.e("sequence", ">> "+i);
+
+            return null;
         }
 
+        @Override
+        protected void onPostExecute(Void unused) {
+            //화면 설정
+            setMonthView(todoList, todoListAdapter, databaseReference, stringDateList);
 
+            preBtn.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    currentDateInfo.add(Calendar.MONTH, -1);
+                    setMonthView(todoList, todoListAdapter, databaseReference, stringDateList);
+                }
+            });
 
-        //화면 설정
-        setMonthView(todoList, todoListAdapter, databaseReference, stringDateList);
-
-        pre_btn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                currentDateInfo.add(Calendar.MONTH, -1);
-                setMonthView(todoList, todoListAdapter, databaseReference, stringDateList);
-            }
-        });
-
-        next_btn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                currentDateInfo.add(Calendar.MONTH, 1);
-                setMonthView(todoList, todoListAdapter, databaseReference, stringDateList);
-            }
-        });
-
-
-        return rootView;
+            nextBtn.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    currentDateInfo.add(Calendar.MONTH, 1);
+                    setMonthView(todoList, todoListAdapter, databaseReference, stringDateList);
+                }
+            });
+        }
     }
 
     //년월 형식 설정
@@ -153,7 +193,6 @@ public class CalendarFragment extends Fragment {
     }
 
     //dayList에 날짜 저장
-    @RequiresApi(api = Build.VERSION_CODES.O)
     public ArrayList<Date> daysInMonthArray(){
 
         ArrayList<Date> dayList = new ArrayList<>();
@@ -183,7 +222,6 @@ public class CalendarFragment extends Fragment {
     }
 
     //화면 설정
-    @RequiresApi(api = Build.VERSION_CODES.O)
     public void setMonthView(ArrayList<TodoListItem> todoList, TodoListAdapter todoListAdapter, DatabaseReference databaseReference, HashSet<String> stringDateList){
         //년월 텍스트뷰 설정
         yearMonth.setText(yearMonthFromDate(currentDateInfo));
@@ -196,9 +234,8 @@ public class CalendarFragment extends Fragment {
         //해당 월 날짜 가져오기
         ArrayList<Date> dayList = daysInMonthArray();
         //어댑터 데이터 적용(준비)
-        CalendarAdapter calendarAdapter = new CalendarAdapter(dayList, todoList, todoListAdapter, databaseReference, stringDateList);
+        calendarAdapter = new CalendarAdapter(dayList, todoList, todoListAdapter, databaseReference, stringDateList);
         //어댑터 적용(사용)
         recyclerviewCalendar.setAdapter(calendarAdapter);
     }
 }
-

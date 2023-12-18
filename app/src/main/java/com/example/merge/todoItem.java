@@ -1,10 +1,10 @@
 package com.example.merge;
 
-public class todoItem {
+public class TodoItem {
     String todo;
     String startTime, endTime;
     String memo;
-    public todoItem(String todo, String startTime, String endTime, String memo) {
+    public TodoItem(String todo, String startTime, String endTime, String memo) {
         this.todo = todo;
         this.startTime = startTime;
         this.endTime = endTime;

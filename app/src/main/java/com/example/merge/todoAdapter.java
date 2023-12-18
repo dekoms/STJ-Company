@@ -1,50 +1,79 @@
 package com.example.merge;
 
-import android.content.*;
-import android.net.Uri;
-import android.os.Bundle;
-import android.view.*;
-import android.widget.*;
+import android.content.Context;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.AlertDialog;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentManager;
-import androidx.fragment.app.FragmentPagerAdapter;
-import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-import androidx.viewpager.widget.ViewPager;
 
-import com.google.android.material.tabs.TabLayout;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
-import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.List;
 
-public class todoAdapter extends RecyclerView.Adapter<todoAdapter.todoViewHolder> {
-    private final List<todoItem> itemList;
+public class TodoAdapter extends RecyclerView.Adapter<TodoAdapter.todoViewHolder> {
+    final List<TodoItem> itemList;
     private Context context;
-    public todoAdapter(Context context, List<todoItem> itemList){
+    String name;
+    FirebaseAuth firebaseAuth = FirebaseAuth.getInstance();
+    FirebaseUser firebaseUser = firebaseAuth.getCurrentUser();
+    DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference("PetMe")
+            .child("Todo").child(Home.getTime());
+    DatabaseReference mDatabaseReference = FirebaseDatabase.getInstance().getReference("PetMe")
+            .child("UserAccount").child(firebaseUser.getUid()).child("name");
+    public TodoAdapter(Context context, List<TodoItem> itemList){
         this.context = context;
         this.itemList = itemList;
 
     }
     @NonNull
     @Override
-    public todoAdapter.todoViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+    public TodoAdapter.todoViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.todo_view, parent,false);
-        return new todoAdapter.todoViewHolder(view);
+        return new TodoAdapter.todoViewHolder(view);
     }
 
     @Override
-    public void onBindViewHolder(@NonNull todoAdapter.todoViewHolder holder, int position) {
-        todoItem todoItem = itemList.get(position);
-
-        String test = todoItem.getTodo();
+    public void onBindViewHolder(@NonNull TodoAdapter.todoViewHolder holder, int position) {
         holder.checkBox.setText(itemList.get(position).getTodo());
-        holder.todoStartTime.setText(itemList.get(position).getStartTime());
         holder.todoMemo.setText(itemList.get(position).getMemo());
-        holder.todoEndTime.setText(itemList.get(position).getEndTime());
+        if(isAllday(position)){
+            holder.todoStartTime.setText("하루 종일");
+            holder.todoEndTime.setText("하루 종일");
+        } else {
+            holder.todoStartTime.setText(itemList.get(position).getStartTime());
+            holder.todoEndTime.setText(itemList.get(position).getEndTime());
+        }
+        holder.checkBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+                mDatabaseReference.addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot snapshot) {
+                        name = snapshot.getValue(String.class);
+                        DatabaseReference mDataReference = databaseReference.child(name);
+                        if(b) mDataReference.child(holder.checkBox.getText().toString()).child("done").setValue(true);
+                        else mDataReference.child(holder.checkBox.getText().toString()).child("done").setValue(false);
+                    }
+
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError error) {
+
+                    }
+                });
+
+            }
+        });
     }
 
     @Override
@@ -66,4 +95,8 @@ public class todoAdapter extends RecyclerView.Adapter<todoAdapter.todoViewHolder
             todoEndTime = itemView.findViewById(R.id.todoEndTime);
         }
     }
+    boolean isAllday(int position){
+        return itemList.get(position).getStartTime().equals("") && itemList.get(position).getEndTime().equals("");
+    }
+
 }

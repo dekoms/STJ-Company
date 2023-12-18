@@ -73,7 +73,7 @@ public class ProfileAdapter extends RecyclerView.Adapter<ProfileAdapter.CustomVi
                 String uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
 
                 mDatabase = FirebaseDatabase.getInstance();
-                dataRef = mDatabase.getReference().child("profile").child("pet").child(uid).child(pname);
+                dataRef = mDatabase.getReference().child("PetMe").child("pet").child(uid).child(pname);
 
                 StorageReference imageReference = mStorageReference.child("images/" + uid +"/"+ "petimage/" + pname + ".jpg");
 
@@ -102,7 +102,7 @@ public class ProfileAdapter extends RecyclerView.Adapter<ProfileAdapter.CustomVi
                 intent.putExtra("tvage", arrayList.get(mPostion).getAge());
                 intent.putExtra("tvbirth", arrayList.get(mPostion).getBirth());
                 intent.putExtra("tvgender", arrayList.get(mPostion).getGender());
-                ((MainActivity)context).startActivity(intent);
+                ((ProfileActivity)context).startActivity(intent);
             }
         });
     }
