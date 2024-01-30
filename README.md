@@ -1,6 +1,11 @@
 # STJ-Company
 SoftwareEngineering
 
+---
+#### unityLibrary, NDK 다운로드 필수
+
+---
+
 <br/>
 
 ★ Unity3D NDK 다운로드 링크
